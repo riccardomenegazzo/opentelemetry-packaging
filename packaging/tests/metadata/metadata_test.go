@@ -143,6 +143,7 @@ func debExtractFile(t *testing.T, path, target string) string {
 
 // pathsContain checks if any path in the list contains the given substring.
 type packageBOM struct {
+	Schema      string `json:"$schema"`
 	BOMFormat   string `json:"bomFormat"`
 	SpecVersion string `json:"specVersion"`
 	Metadata    struct {
@@ -162,6 +163,7 @@ func debBOM(t *testing.T, pkg, target string) packageBOM {
 
 	var bom packageBOM
 	require.NoError(t, json.Unmarshal([]byte(content), &bom))
+	require.Equal(t, "http://cyclonedx.org/schema/bom-1.7.schema.json", bom.Schema)
 	require.Equal(t, "CycloneDX", bom.BOMFormat)
 	require.Equal(t, "1.7", bom.SpecVersion)
 	return bom
