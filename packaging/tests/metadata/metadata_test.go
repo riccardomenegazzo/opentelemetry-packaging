@@ -141,7 +141,7 @@ func debExtractFile(t *testing.T, path, target string) string {
 	return ""
 }
 
-// pathsContain checks if any path in the list contains the given substring.
+// packageBOM is the subset of CycloneDX used by the package-level assertions.
 type packageBOM struct {
 	Schema      string `json:"$schema"`
 	BOMFormat   string `json:"bomFormat"`
