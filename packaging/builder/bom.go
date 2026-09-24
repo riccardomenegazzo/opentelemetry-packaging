@@ -21,6 +21,7 @@ type bundledComponent struct {
 }
 
 type cycloneDXBOM struct {
+	Schema      string               `json:"$schema"`
 	BOMFormat   string               `json:"bomFormat"`
 	SpecVersion string               `json:"specVersion"`
 	Version     int                  `json:"version"`
@@ -54,6 +55,7 @@ func writeCycloneDXBOM(path, packageName, packageVersion string, components []bu
 	}
 
 	bom := cycloneDXBOM{
+		Schema:      "http://cyclonedx.org/schema/bom-1.7.schema.json",
 		BOMFormat:   "CycloneDX",
 		SpecVersion: "1.7",
 		Version:     1,
@@ -124,7 +126,11 @@ func nodeModulesComponents(installDir string) ([]bundledComponent, error) {
 	if err := collectNodeModules(filepath.Join(installDir, "node_modules"), &components); err != nil {
 		return nil, err
 	}
-	return normalizeBundledComponents(components), nil
+	components = normalizeBundledComponents(components)
+	if len(components) == 0 {
+		return nil, fmt.Errorf("no installed npm packages found under %s", installDir)
+	}
+	return components, nil
 }
 
 func collectNodeModules(nodeModulesDir string, components *[]bundledComponent) error {
@@ -220,5 +226,9 @@ func pythonDistInfoComponents(installDir string) ([]bundledComponent, error) {
 		})
 	}
 
-	return normalizeBundledComponents(components), nil
+	components = normalizeBundledComponents(components)
+	if len(components) == 0 {
+		return nil, fmt.Errorf("no Python distributions found under %s", installDir)
+	}
+	return components, nil
 }
