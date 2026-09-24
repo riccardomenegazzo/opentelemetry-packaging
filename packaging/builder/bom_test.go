@@ -85,6 +85,7 @@ func TestWriteCycloneDXBOMIsDeterministic(t *testing.T) {
 
 	var bom cycloneDXBOM
 	require.NoError(t, json.Unmarshal(firstData, &bom))
+	assert.Equal(t, "http://cyclonedx.org/schema/bom-1.7.schema.json", bom.Schema)
 	assert.Equal(t, "CycloneDX", bom.BOMFormat)
 	assert.Equal(t, "1.7", bom.SpecVersion)
 	assert.Equal(t, "opentelemetry-test", bom.Metadata.Component.Name)
@@ -107,4 +108,17 @@ func writeDistInfo(t *testing.T, root, dir, name, version string) {
 	require.NoError(t, os.MkdirAll(path, 0o755))
 	content := "Metadata-Version: 2.1\nName: " + name + "\nVersion: " + version + "\n"
 	require.NoError(t, os.WriteFile(filepath.Join(path, "METADATA"), []byte(content), 0o644))
+}
+
+
+func TestNodeModulesComponentsRejectsEmptyInventory(t *testing.T) {
+	root := t.TempDir()
+	_, err := nodeModulesComponents(root)
+	require.ErrorContains(t, err, "no installed npm packages found")
+}
+
+func TestPythonDistInfoComponentsRejectsEmptyInventory(t *testing.T) {
+	root := t.TempDir()
+	_, err := pythonDistInfoComponents(root)
+	require.ErrorContains(t, err, "no Python distributions found")
 }
